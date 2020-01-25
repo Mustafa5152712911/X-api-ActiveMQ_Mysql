@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="62eca046-2919-4dfe-acfd-01c1557fb091" file="Credentials.yaml" />
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="a478dd0e-b14e-4693-ba87-f851623c6852" >
+		<db:my-sql-connection host="localhost" port="3306" user="${Mysql.username}" password="${Mysql.password}" database="${Mysql.database}" />
+	</db:config>
+	<file:config name="File_Config3" doc:name="File Config" doc:id="55c1d183-f89c-4bb2-a86f-58abb0c068d2" >
+		<file:connection workingDir="/home/mustafa/Pictures" />
+	</file:config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="31c1aec4-9878-44a1-b13b-b58acbc6c6f5" >
+		<jms:active-mq-connection username="${ActiveMQ.username}" password="${ActiveMQ.password}" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+</mule>

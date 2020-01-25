@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="x-POST_api_activemq_mysql-apiSub_Flow" doc:id="3e12f8c7-d937-44dd-b290-e120c964c494" >
+		<file:read doc:id="927b78e1-ee42-47b5-bede-379254a4e969" path="/home/mustafa/Pictures/Sales/SalesJan2009.csv" doc:name="Read_File" config-ref="File_Config3"/>
+		<try doc:name="Try" doc:id="91d9902d-2a4e-476f-b67e-37cc5a3f7f0c" >
+			<jms:publish doc:id="417384d2-e50b-4974-affc-dec001f6dc35" destination="Employee" doc:name="POST_DATA_ActiveMQ" config-ref="JMS_Config"/>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f8106a71-17f7-4f64-a159-ff34b373e584" type="ANY">
+					<ee:transform doc:name="Flow_Level_ErrorHandler_ActiveMQ" doc:id="f13d1e35-a23f-4fbe-abe0-cf5f1c76a161" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Unable to Publish Data on the ActiveMQ..."]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</sub-flow>
+</mule>

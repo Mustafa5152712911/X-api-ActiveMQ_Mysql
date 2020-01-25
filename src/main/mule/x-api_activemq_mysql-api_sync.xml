@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <http:listener-config name="activemq-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="activemq-config" api="activemq.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="activemq-main">
+        <http:listener config-ref="activemq-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="activemq-config" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b934de48-d6f5-4fbc-b69c-2c7621d7cc63" type="ANY">
+				<ee:transform doc:name="Global_Error_Handler" doc:id="241e06bd-e234-411d-a860-2590e6f58f8f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Unable to Call the Endpoints, API KIT BAD REQUEST"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="get:\Consume:activemq-config">
+		<flow-ref doc:name="Consume_CSV_ActiveMQ" doc:id="e52d9d67-f6ad-4adb-93c8-1fa4da03fe63" name="x-Retrieve_api_activemq_mysql-apiSub_Flow"/>
+    </flow>
+    <flow name="get:\Database:activemq-config">
+		<flow-ref doc:name="X-api_Transformer_Mysql" doc:id="f934eede-4c42-4512-84c8-d46cccd9b4c0" name="X-api_Dataweave_ActiveMQ_Mysql_apiSub_Flow"/>
+    </flow>
+    <flow name="post:\Publish:activemq-config">
+		<flow-ref doc:name="POST_INSERT_CSV_ActiveMQ" doc:id="4dbe14cb-3a12-439b-b240-0cbc7588e7d0" name="x-POST_api_activemq_mysql-apiSub_Flow"/>
+    </flow>
+</mule>
